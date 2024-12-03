@@ -73,12 +73,13 @@ contains
         integer :: i
         real :: mean_val, std_val
         real, allocatable :: feature(:)
+        real, parameter :: EPSILON = 1.0e-6
 
         do i = 1, NUM_FEATURES
             feature = X(i, :)
             mean_val = sum(feature) / num_samples
             std_val = sqrt(sum((feature - mean_val) ** 2) / num_samples)
-            if (std_val /= 0.0) then
+            if (abs(std_val) > EPSILON) then
                 X(i, :) = (feature - mean_val) / std_val
             else
                 X(i, :) = 0.0

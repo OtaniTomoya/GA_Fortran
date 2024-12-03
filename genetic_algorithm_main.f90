@@ -23,7 +23,8 @@ program genetic_algorithm_main
     integer :: depth
     integer :: seed_size
     integer, allocatable :: seed(:)
-    integer :: j
+    real, parameter :: EPSILON = 1.0e-6
+    ! integer :: j
 
     ! 乱数の初期化
     call random_seed(size=seed_size)
@@ -53,7 +54,7 @@ program genetic_algorithm_main
         ! 最良個体の選択
         best_fitness = maxval(fitness)
         do i = 1, POPULATION_SIZE
-            if (fitness(i) == best_fitness) then
+            if (abs(fitness(i) - best_fitness) < EPSILON) then
                 best_individual => population(i)%ptr
                 exit
             end if
@@ -97,27 +98,27 @@ program genetic_algorithm_main
 
 contains
 
-    subroutine tournament_selection(fitness, selected_indices)
-        use parameters
-        implicit none
-        real, intent(in) :: fitness(:)
-        integer, intent(out) :: selected_indices(2)
-        integer :: i, j, idx, best_idx
-        real :: best_fitness, r
-
-        do i = 1, 2
-            best_fitness = -1.0
-            do j = 1, TOURNAMENT_SIZE
-                call random_number(r)
-                idx = int(r * POPULATION_SIZE) + 1
-                if (fitness(idx) > best_fitness) then
-                    best_fitness = fitness(idx)
-                    best_idx = idx
-                end if
-            end do
-            selected_indices(i) = best_idx
-        end do
-    end subroutine tournament_selection
+!    subroutine tournament_selection(fitness, selected_indices)
+!        use parameters
+!        implicit none
+!        real, intent(in) :: fitness(:)
+!        integer, intent(out) :: selected_indices(2)
+!        integer :: i, j, idx, best_idx
+!        real :: best_fitness, r
+!
+!        do i = 1, 2
+!            best_fitness = -1.0
+!            do j = 1, TOURNAMENT_SIZE
+!                call random_number(r)
+!                idx = int(r * POPULATION_SIZE) + 1
+!                if (fitness(idx) > best_fitness) then
+!                    best_fitness = fitness(idx)
+!                    best_idx = idx
+!                end if
+!            end do
+!            selected_indices(i) = best_idx
+!        end do
+!    end subroutine tournament_selection
 
     subroutine roulette_wheel_selection(fitness, selected_indices)
     use parameters

@@ -4,7 +4,7 @@ module parameters
     integer, parameter :: GENERATIONS = 100     ! 世代数
     integer, parameter :: MIN_DEPTH = 10        ! ツリーの最小深さ
     integer, parameter :: MAX_DEPTH = 30        ! ツリーの最大深さ
-    ! integer, parameter :: TOURNAMENT_SIZE = 3   ! トーナメント選択のサイズ
+    integer, parameter :: TOURNAMENT_SIZE = 3   ! トーナメント選択のサイズ
     real, parameter    :: MUTATION_RATE = 0.01  ! 突然変異率
     real, parameter    :: CROSSOVER_RATE = 0.5  ! 交叉率
     integer, parameter :: NUM_FEATURES = 784    ! 特徴量の数（MNISTデータセット）
