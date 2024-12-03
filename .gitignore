@@ -1,3 +1,4 @@
-/parameters.mod
-/parameters.o
+/genetic_algorithm
 /.idea/*
+/*.o
+/*.mod
