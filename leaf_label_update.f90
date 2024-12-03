@@ -22,7 +22,7 @@ contains
         call update_leaf_predictions(node)
     end subroutine update_leaf_labels
 
-    subroutine initialize_labels_counts(node)
+    recursive subroutine initialize_labels_counts(node)
         type(TreeNode), pointer :: node
         if (.not. associated(node)) return
         if (node%is_leaf) then
@@ -33,7 +33,7 @@ contains
         end if
     end subroutine initialize_labels_counts
 
-    subroutine traverse_and_update(node, sample, label)
+    recursive subroutine traverse_and_update(node, sample, label)
         type(TreeNode), pointer :: node
         real, intent(in) :: sample(:)
         integer, intent(in) :: label
@@ -48,7 +48,7 @@ contains
         end if
     end subroutine traverse_and_update
 
-    subroutine update_leaf_predictions(node)
+    recursive subroutine update_leaf_predictions(node)
         type(TreeNode), pointer :: node
         integer :: max_count, i
         if (.not. associated(node)) return

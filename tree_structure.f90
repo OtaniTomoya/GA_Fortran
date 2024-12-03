@@ -1,6 +1,7 @@
 module tree_structure
     use parameters
     implicit none
+
     type :: TreeNode
         integer :: variable = -1
         real    :: threshold = 0.0
@@ -10,6 +11,9 @@ module tree_structure
         type(TreeNode), pointer :: left => null()
         type(TreeNode), pointer :: right => null()
     end type TreeNode
-contains
-    ! ツリー関連のサブルーチンをここに記述します
+
+    type :: TreeNodePointer
+        type(TreeNode), pointer :: ptr => null()
+    end type TreeNodePointer
+
 end module tree_structure

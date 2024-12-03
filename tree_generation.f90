@@ -3,7 +3,7 @@ module tree_generation
     use tree_structure
     implicit none
 contains
-    subroutine create_random_tree(max_depth, current_depth, node)
+    recursive subroutine create_random_tree(max_depth, current_depth, node)
         integer, intent(in) :: max_depth, current_depth
         type(TreeNode), pointer, intent(out) :: node
         real :: r
