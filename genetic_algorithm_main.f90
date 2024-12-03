@@ -38,18 +38,22 @@ program genetic_algorithm_main
     ! 初期集団の生成
     allocate(population(POPULATION_SIZE))
     allocate(fitness(POPULATION_SIZE))
-    do i = 1, POPULATION_SIZE
-        call random_number(r)
-        depth = int(MIN_DEPTH + (MAX_DEPTH - MIN_DEPTH) * r)
-        call create_random_tree(depth, 0, population(i)%ptr)
-    end do
+    !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i, r, depth)
+        do i = 1, POPULATION_SIZE
+            call random_number(r)
+            depth = int(MIN_DEPTH + (MAX_DEPTH - MIN_DEPTH) * r)
+            call create_random_tree(depth, 0, population(i)%ptr)
+        end do
+    !$OMP END PARALLEL DO
 
     ! 世代ループ
     do generation = 1, GENERATIONS
         ! 適応度の計算
-        do i = 1, POPULATION_SIZE
-            fitness(i) = evaluate_individual(population(i)%ptr, X_train, y_train, num_train)
-        end do
+        !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i)
+            do i = 1, POPULATION_SIZE
+                fitness(i) = evaluate_individual(population(i)%ptr, X_train, y_train, num_train)
+            end do
+        !$OMP END PARALLEL DO
 
         ! 最良個体の選択
         best_fitness = maxval(fitness)
@@ -77,11 +81,12 @@ program genetic_algorithm_main
                 call subtree_crossover(offspring(i)%ptr, offspring(i + 1)%ptr)
             end if
         end do
-
         ! 突然変異
-        do i = 1, POPULATION_SIZE
-            call mutate(offspring(i)%ptr)
-        end do
+        !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i)
+            do i = 1, POPULATION_SIZE
+                call mutate(offspring(i)%ptr)
+            end do
+        !$OMP END PARALLEL DO
 
         ! 次世代集団に更新
         deallocate(population)

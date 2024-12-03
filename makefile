@@ -1,10 +1,10 @@
-# Makefile for the genetic algorithm Fortran project
+# Makefile for the genetic algorithm Fortran project with OpenMP
 
 # Compiler
 FC = gfortran
 
 # Compiler flags
-FFLAGS = -O2 -Wall -Wextra -fimplicit-none
+FFLAGS = -O2 -Wall -Wextra -fimplicit-none -fopenmp
 
 # Module and object files
 MODULES = parameters.mod data_handling.mod tree_structure.mod tree_generation.mod leaf_label_update.mod prediction.mod evaluation.mod genetic_operators.mod

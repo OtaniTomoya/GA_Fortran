@@ -1,6 +1,6 @@
 module parameters
     implicit none
-    integer, parameter :: POPULATION_SIZE = 10  ! 集団サイズ
+    integer, parameter :: POPULATION_SIZE = 15  ! 集団サイズ
     integer, parameter :: GENERATIONS = 100     ! 世代数
     integer, parameter :: MIN_DEPTH = 10        ! ツリーの最小深さ
     integer, parameter :: MAX_DEPTH = 30        ! ツリーの最大深さ
