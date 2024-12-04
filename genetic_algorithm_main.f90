@@ -152,6 +152,7 @@ contains
         end do
     end subroutine roulette_wheel_selection
 
+
     recursive subroutine deallocate_tree(node)
         type(TreeNode), pointer :: node
         if (associated(node)) then
