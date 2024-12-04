@@ -4,7 +4,7 @@ module tree_structure
 
     type :: TreeNode
         integer :: variable = -1
-        real    :: threshold = 0.0
+        integer    :: threshold = 0
         logical :: is_leaf = .false.
         integer :: prediction = -1
         integer :: labels_counts(NUM_CLASSES) = 0

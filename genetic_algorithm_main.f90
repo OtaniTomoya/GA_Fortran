@@ -6,10 +6,11 @@ program genetic_algorithm_main
     use genetic_operators
     use tree_structure
     use prediction
+    use,intrinsic :: iso_fortran_env
     implicit none
 
     ! 変数の宣言
-    real, allocatable :: X_train(:,:), X_test(:,:)
+    integer, allocatable :: X_train(:,:), X_test(:,:)
     integer, allocatable :: y_train(:), y_test(:)
     integer :: num_train, num_test
     type(TreeNodePointer), allocatable :: population(:), offspring(:), temp_population(:)
@@ -22,8 +23,11 @@ program genetic_algorithm_main
     integer :: depth
     integer :: seed_size
     integer, allocatable :: seed(:)
-    real, parameter :: EPSILON = 1.0e-6
     integer :: best_index
+
+    integer :: time_begin_c,time_end_c, CountPerSec, CountMax
+
+    call system_clock(time_begin_c, CountPerSec, CountMax)
 
     ! 乱数の初期化
     call random_seed(size=seed_size)
@@ -115,6 +119,11 @@ program genetic_algorithm_main
     deallocate(X_test)
     deallocate(y_test)
     deallocate(seed)
+
+    call system_clock(time_end_c)
+
+    print *,time_begin_c,time_end_c, CountPerSec,CountMax
+    print *,real(time_end_c - time_begin_c)/CountPerSec,"sec"
 
 contains
 

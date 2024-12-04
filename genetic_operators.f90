@@ -8,7 +8,6 @@ contains
     subroutine subtree_crossover(ind1, ind2)
         type(TreeNode), pointer :: ind1
         type(TreeNode), pointer :: ind2
-        real :: r
 
         call crossover_recursive(ind1, ind2)
     end subroutine subtree_crossover
@@ -49,7 +48,7 @@ contains
                 call random_number(r)
                 node%variable = int(r * NUM_FEATURES)
                 call random_number(r)
-                node%threshold = r * 6.0 - 3.0
+                node%threshold = int(r * 255)
             else
                 ! リーフノードの変異
                 call random_number(r)

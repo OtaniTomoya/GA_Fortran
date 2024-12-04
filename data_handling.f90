@@ -5,7 +5,7 @@ contains
 
     subroutine load_and_prepare_mnist(X_train, y_train, num_train, X_test, y_test, num_test)
         implicit none
-        real, allocatable, intent(out) :: X_train(:,:), X_test(:,:)
+        integer, allocatable, intent(out) :: X_train(:,:), X_test(:,:)
         integer, allocatable, intent(out) :: y_train(:), y_test(:)
         integer, intent(out) :: num_train, num_test
 
@@ -31,16 +31,13 @@ contains
         ! テストデータの読み込み
         call read_mnist_data(test_file, X_test, y_test, num_test)
 
-        ! データの標準化（平均0、標準偏差1）
-        call standardize_data(X_train, num_train)
-        call standardize_data(X_test, num_test)
     end subroutine load_and_prepare_mnist
 
     subroutine read_mnist_data(filename, X, y, num_samples)
         use parameters
         implicit none
         character(len=*), intent(in) :: filename
-        real, intent(out) :: X(NUM_FEATURES, num_samples)
+        integer, intent(out) :: X(NUM_FEATURES, num_samples)
         integer, intent(out) :: y(num_samples)
         integer, intent(in) :: num_samples
         integer :: i, j, ios
@@ -64,28 +61,5 @@ contains
 
         close(unit)
     end subroutine read_mnist_data
-
-    subroutine standardize_data(X, num_samples)
-        use parameters
-        implicit none
-        real, intent(inout) :: X(NUM_FEATURES, num_samples)
-        integer, intent(in) :: num_samples
-        integer :: i
-        real :: mean_val, std_val
-        real, allocatable :: feature(:)
-        real, parameter :: EPSILON = 1.0e-6
-
-        do i = 1, NUM_FEATURES
-            feature = X(i, :)
-            mean_val = sum(feature) / num_samples
-            std_val = sqrt(sum((feature - mean_val) ** 2) / num_samples)
-            if (abs(std_val) > EPSILON) then
-                X(i, :) = (feature - mean_val) / std_val
-            else
-                X(i, :) = 0.0
-            end if
-            deallocate(feature)
-        end do
-    end subroutine standardize_data
 
 end module data_handling

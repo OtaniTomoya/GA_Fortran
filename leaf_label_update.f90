@@ -5,7 +5,7 @@ module leaf_label_update
 contains
     subroutine update_leaf_labels(node, X, y, num_samples)
         type(TreeNode), pointer :: node
-        real, intent(in) :: X(NUM_FEATURES, num_samples)
+        integer, intent(in) :: X(NUM_FEATURES, num_samples)
         integer, intent(in) :: y(num_samples)
         integer, intent(in) :: num_samples
         integer :: i
@@ -35,7 +35,7 @@ contains
 
     recursive subroutine traverse_and_update(node, sample, label)
         type(TreeNode), pointer :: node
-        real, intent(in) :: sample(:)
+        integer, intent(in) :: sample(:)
         integer, intent(in) :: label
         if (node%is_leaf) then
             node%labels_counts(label + 1) = node%labels_counts(label + 1) + 1

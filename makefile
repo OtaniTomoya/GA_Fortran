@@ -4,7 +4,8 @@
 FC = gfortran
 
 # Compiler flags
-FFLAGS = -O2 -Wall -Wextra -fimplicit-none -fopenmp
+FFLAGS = -Wall -Wextra -fimplicit-none -fopenmp
+#FFLAGS = -Wall -Wextra -fimplicit-none
 
 # Module and object files
 MODULES = parameters.mod data_handling.mod tree_structure.mod tree_generation.mod leaf_label_update.mod prediction.mod evaluation.mod genetic_operators.mod

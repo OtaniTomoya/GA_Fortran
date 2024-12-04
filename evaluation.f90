@@ -7,7 +7,7 @@ module evaluation
 contains
     real function evaluate_individual(node, X, y, num_samples)
         type(TreeNode), pointer :: node
-        real, intent(in) :: X(NUM_FEATURES, num_samples)
+        integer, intent(in) :: X(NUM_FEATURES, num_samples)
         integer, intent(in) :: y(num_samples)
         integer, intent(in) :: num_samples
         integer :: correct, i
