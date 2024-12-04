@@ -23,6 +23,7 @@ program genetic_algorithm_main
     integer :: depth
     integer :: seed_size
     integer, allocatable :: seed(:)
+
     integer :: best_index
 
     integer :: time_begin_c,time_end_c, CountPerSec, CountMax
@@ -33,6 +34,7 @@ program genetic_algorithm_main
     call random_seed(size=seed_size)
     allocate(seed(seed_size))
     seed = SEED_VALUE
+
     call random_seed(put=seed)
 
     ! データの読み込み
@@ -42,11 +44,11 @@ program genetic_algorithm_main
     allocate(population(POPULATION_SIZE))
     allocate(fitness(POPULATION_SIZE))
     !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i, r, depth)
-        do i = 1, POPULATION_SIZE
-            call random_number(r)
-            depth = int(MIN_DEPTH + (MAX_DEPTH - MIN_DEPTH) * r)
-            call create_random_tree(depth, 0, population(i)%ptr)
-        end do
+    do i = 1, POPULATION_SIZE
+        call random_number(r)
+        depth = int(MIN_DEPTH + (MAX_DEPTH - MIN_DEPTH) * r)
+        call create_random_tree(depth, 0, population(i)%ptr)
+    end do
     !$OMP END PARALLEL DO
 
     ! オフスプリングの配列を最初に割り当て
@@ -74,6 +76,8 @@ program genetic_algorithm_main
         do i = 1, POPULATION_SIZE
             call deallocate_tree(offspring(i)%ptr)
         end do
+        !$OMP END PARALLEL DO
+
 
         ! 選択と交叉
         do i = 1, POPULATION_SIZE, 2
@@ -90,9 +94,9 @@ program genetic_algorithm_main
 
         ! 突然変異
         !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i)
-            do i = 1, POPULATION_SIZE
-                call mutate(offspring(i)%ptr)
-            end do
+        do i = num_elites + 1, POPULATION_SIZE
+            call mutate(offspring(i)%ptr)
+        end do
         !$OMP END PARALLEL DO
 
         ! 配列をスワップ
