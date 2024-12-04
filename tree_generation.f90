@@ -3,15 +3,14 @@ module tree_generation
     use tree_structure
     implicit none
 contains
-    recursive subroutine create_random_tree(minDepth, current_depth, node)
-        integer, intent(in) :: minDepth, current_depth
+    recursive subroutine create_random_tree(maxDepth, current_depth, node)
+        integer, intent(in) :: maxDepth, current_depth
         type(TreeNode), pointer, intent(out) :: node
         real :: r
 
         allocate(node)
         call random_number(r)
-
-        if (MAX_DEPTH <= current_depth .or. (current_depth >= minDepth .and. r < 0.5)) then
+        if (maxDepth <= current_depth .or. (current_depth >= MIN_DEPTH .and. r < 0.5)) then
             ! リーフノード
             node%is_leaf = .true.
             call random_number(r)
@@ -24,8 +23,8 @@ contains
             node%variable = int(r * NUM_FEATURES)
             call random_number(r)
             node%threshold = int(r * 255)
-            call create_random_tree(minDepth, current_depth + 1, node%left)
-            call create_random_tree(minDepth, current_depth + 1, node%right)
+            call create_random_tree(maxDepth, current_depth + 1, node%left)
+            call create_random_tree(maxDepth, current_depth + 1, node%right)
         end if
     end subroutine create_random_tree
 end module tree_generation
