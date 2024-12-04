@@ -4,7 +4,7 @@ program genetic_algorithm_main
     use tree_generation
     use evaluation
     use genetic_operators
-    use tree_structure  ! TreeNodePointer 型はこのモジュールから取得
+    use tree_structure
     use prediction
     implicit none
 
@@ -12,23 +12,23 @@ program genetic_algorithm_main
     real, allocatable :: X_train(:,:), X_test(:,:)
     integer, allocatable :: y_train(:), y_test(:)
     integer :: num_train, num_test
-    type(TreeNodePointer), allocatable :: population(:)
+    type(TreeNodePointer), allocatable :: population(:), offspring(:), temp_population(:)
     real, allocatable :: fitness(:)
     integer :: i, generation
-    real :: best_fitness, test_accuracy
+    real :: best_fitness, test_accuracy, mean_fitness
     type(TreeNodePointer) :: best_individual
-    type(TreeNodePointer), allocatable :: offspring(:)
     integer :: parent_indices(2)
     real :: r
     integer :: depth
     integer :: seed_size
     integer, allocatable :: seed(:)
     real, parameter :: EPSILON = 1.0e-6
+    integer :: best_index
 
     ! 乱数の初期化
     call random_seed(size=seed_size)
     allocate(seed(seed_size))
-    seed = SEED_VALUE  ! 'SEED_VALUE' は 'parameters' モジュールで定義されています
+    seed = SEED_VALUE
     call random_seed(put=seed)
 
     ! データの読み込み
@@ -47,34 +47,34 @@ program genetic_algorithm_main
 
     ! オフスプリングの配列を最初に割り当て
     allocate(offspring(POPULATION_SIZE))
-
+    print '(A)', "Generation     max       mean"
     ! 世代ループ
     do generation = 1, GENERATIONS
+
         ! 適応度の計算
         !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i)
             do i = 1, POPULATION_SIZE
                 fitness(i) = evaluate_individual(population(i)%ptr, X_train, y_train, num_train)
             end do
         !$OMP END PARALLEL DO
-
         ! 最良個体の選択
+        if (generation == GENERATIONS) then
+            best_index = maxloc(fitness, dim=1)
+            call copy_tree(population(best_index)%ptr, best_individual%ptr)
+        end if
         best_fitness = maxval(fitness)
+        mean_fitness = SUM(fitness) / SIZE(fitness)
+        print '(I10, F10.2, F10.2)', generation, best_fitness*100, mean_fitness*100
+
+        ! オフスプリングの生成前に古いツリーを解放
         do i = 1, POPULATION_SIZE
-            if (abs(fitness(i) - best_fitness) < EPSILON) then
-                call copy_tree(population(i)%ptr, best_individual%ptr)
-                exit
-            end if
+            call deallocate_tree(offspring(i)%ptr)
         end do
-
-        print *, "Generation ", generation, ", Best Fitness (Training Accuracy): ", best_fitness
-
-        ! オフスプリングの生成
 
         ! 選択と交叉
         do i = 1, POPULATION_SIZE, 2
             call roulette_wheel_selection(fitness, parent_indices)
 
-            ! 親個体のツリーを深いコピー
             call copy_tree(population(parent_indices(1))%ptr, offspring(i)%ptr)
             call copy_tree(population(parent_indices(2))%ptr, offspring(i + 1)%ptr)
 
@@ -91,14 +91,10 @@ program genetic_algorithm_main
             end do
         !$OMP END PARALLEL DO
 
-        ! 古い集団のツリーを解放
-        do i = 1, POPULATION_SIZE
-            call deallocate_tree(population(i)%ptr)
-        end do
-
-        ! 次世代集団に更新
-        population = offspring
-
+        ! 配列をスワップ
+        call move_alloc(population, temp_population)
+        call move_alloc(offspring, population)
+        call move_alloc(temp_population, offspring)
     end do
 
     ! テストデータでの評価
@@ -106,11 +102,19 @@ program genetic_algorithm_main
     print *, "Test Accuracy of Best Individual: ", test_accuracy
 
     ! メモリの解放
-    ! 最後に残っているツリー構造を解放
     do i = 1, POPULATION_SIZE
         call deallocate_tree(population(i)%ptr)
+        call deallocate_tree(offspring(i)%ptr)
     end do
     call deallocate_tree(best_individual%ptr)
+    deallocate(population)
+    deallocate(offspring)
+    deallocate(fitness)
+    deallocate(X_train)
+    deallocate(y_train)
+    deallocate(X_test)
+    deallocate(y_test)
+    deallocate(seed)
 
 contains
 
@@ -123,14 +127,12 @@ contains
         real :: total_fitness, cumulative_fitness(size(fitness))
         real :: r
 
-        ! 累積適応度を計算
         total_fitness = sum(fitness)
         cumulative_fitness(1) = fitness(1)
         do i = 2, size(fitness)
             cumulative_fitness(i) = cumulative_fitness(i - 1) + fitness(i)
         end do
 
-        ! 親個体の選択
         do i = 1, 2
             call random_number(r)
             r = r * total_fitness
@@ -141,7 +143,7 @@ contains
         end do
     end subroutine roulette_wheel_selection
 
-    subroutine deallocate_tree(node)
+    recursive subroutine deallocate_tree(node)
         type(TreeNode), pointer :: node
         if (associated(node)) then
             if (associated(node%left)) then
@@ -155,7 +157,7 @@ contains
         end if
     end subroutine deallocate_tree
 
-    subroutine copy_tree(src, dest)
+    recursive subroutine copy_tree(src, dest)
         type(TreeNode), pointer :: src
         type(TreeNode), pointer :: dest
         if (.not. associated(src)) then
