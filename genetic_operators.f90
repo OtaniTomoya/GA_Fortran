@@ -6,104 +6,71 @@ module genetic_operators
 contains
 
     subroutine subtree_crossover(ind1, ind2)
-        use tree_structure
         type(TreeNode), pointer :: ind1
         type(TreeNode), pointer :: ind2
-        type(TreeNodePointer), allocatable :: nodes1(:)
-        type(TreeNodePointer), allocatable :: nodes2(:)
-        integer :: num_nodes1, num_nodes2
-        integer :: idx1, idx2
         real :: r
 
-        ! 配列の割り当て
-        allocate(nodes1(MAX_NODES))
-        allocate(nodes2(MAX_NODES))
-        num_nodes1 = 0
-        num_nodes2 = 0
-
-        call get_all_nodes(ind1, nodes1, num_nodes1)
-        call get_all_nodes(ind2, nodes2, num_nodes2)
-
-        ! ノード数がゼロの場合のチェック
-        if (num_nodes1 == 0 .or. num_nodes2 == 0) then
-            print *, "No nodes available for crossover."
-            return
-        end if
-
-        ! ランダムなノードを選択
-        call random_number(r)
-        idx1 = int(r * num_nodes1) + 1
-        call random_number(r)
-        idx2 = int(r * num_nodes2) + 1
-
-        ! サブツリーを交換
-        call swap_subtrees(nodes1(idx1), nodes2(idx2))
-
-        ! 配列の解放
-        deallocate(nodes1)
-        deallocate(nodes2)
+        call crossover_recursive(ind1, ind2)
     end subroutine subtree_crossover
 
-    subroutine mutate(individual)
-        use parameters
-        type(TreeNode), pointer :: individual
-        type(TreeNodePointer), allocatable :: nodes(:)
-        integer :: num_nodes, i
+    recursive subroutine crossover_recursive(node1, node2)
+        type(TreeNode), pointer :: node1
+        type(TreeNode), pointer :: node2
         real :: r
 
-        ! 配列の割り当て
-        allocate(nodes(MAX_NODES))
-        num_nodes = 0
+        if (.not. associated(node1) .or. .not. associated(node2)) return
 
-        call get_all_nodes(individual, nodes, num_nodes)
+        call random_number(r)
+        if (r < CROSSOVER_RATE) then
+            call swap_subtrees(node1, node2)
+        else
+            call crossover_recursive(node1%left, node2%left)
+            call crossover_recursive(node1%right, node2%right)
+        end if
+    end subroutine crossover_recursive
 
-        do i = 1, num_nodes
-            call random_number(r)
-            if (r < MUTATION_RATE) then
-                if (.not. nodes(i)%ptr%is_leaf) then
-                    ! 内部ノードの変異
-                    call random_number(r)
-                    nodes(i)%ptr%variable = int(r * NUM_FEATURES)
-                    call random_number(r)
-                    nodes(i)%ptr%threshold = r * 6.0 - 3.0
-                else
-                    ! リーフノードの変異
-                    call random_number(r)
-                    nodes(i)%ptr%prediction = int(r * NUM_CLASSES)
-                end if
-            end if
-        end do
+    subroutine mutate(individual)
+        type(TreeNode), pointer :: individual
 
-        ! 配列の解放
-        deallocate(nodes)
+        call mutate_recursive(individual)
     end subroutine mutate
 
-    recursive subroutine get_all_nodes(node, nodes, num_nodes)
-        use tree_structure
+    recursive subroutine mutate_recursive(node)
+        use parameters
         type(TreeNode), pointer :: node
-        type(TreeNodePointer), intent(inout) :: nodes(:)
-        integer, intent(inout) :: num_nodes
+        real :: r
+
         if (.not. associated(node)) return
-        if (num_nodes >= size(nodes)) then
-            print *, "Exceeded MAX_NODES"
-            return
+
+        call random_number(r)
+        if (r < MUTATION_RATE) then
+            if (.not. node%is_leaf) then
+                ! 内部ノードの変異
+                call random_number(r)
+                node%variable = int(r * NUM_FEATURES)
+                call random_number(r)
+                node%threshold = r * 6.0 - 3.0
+            else
+                ! リーフノードの変異
+                call random_number(r)
+                node%prediction = int(r * NUM_CLASSES)
+            end if
         end if
-        num_nodes = num_nodes + 1
-        nodes(num_nodes)%ptr => node
+
         if (.not. node%is_leaf) then
-            call get_all_nodes(node%left, nodes, num_nodes)
-            call get_all_nodes(node%right, nodes, num_nodes)
+            call mutate_recursive(node%left)
+            call mutate_recursive(node%right)
         end if
-    end subroutine get_all_nodes
+    end subroutine mutate_recursive
 
     subroutine swap_subtrees(node1, node2)
-        type(TreeNodePointer), intent(inout) :: node1
-        type(TreeNodePointer), intent(inout) :: node2
+        type(TreeNode), pointer :: node1
+        type(TreeNode), pointer :: node2
         type(TreeNode), pointer :: temp_ptr
 
-        temp_ptr => node1%ptr
-        node1%ptr => node2%ptr
-        node2%ptr => temp_ptr
+        temp_ptr => node1
+        node1 => node2
+        node2 => temp_ptr
     end subroutine swap_subtrees
 
 end module genetic_operators
