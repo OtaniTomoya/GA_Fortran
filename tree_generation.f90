@@ -22,7 +22,7 @@ contains
             call random_number(r)
             node%variable = int(r * NUM_FEATURES)
             call random_number(r)
-            node%threshold = int(r * 255)
+            node%threshold = int(r * NUM_THRESHOLD)
             call create_random_tree(maxDepth, current_depth + 1, node%left)
             call create_random_tree(maxDepth, current_depth + 1, node%right)
         end if

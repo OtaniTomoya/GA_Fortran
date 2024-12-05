@@ -48,7 +48,7 @@ contains
                 call random_number(r)
                 node%variable = int(r * NUM_FEATURES)
                 call random_number(r)
-                node%threshold = int(r * 255)
+                node%threshold = int(r * NUM_THRESHOLD)
             else
                 ! リーフノードの変異
                 call random_number(r)

@@ -10,12 +10,18 @@ contains
         integer, intent(out) :: num_train, num_test
 
         ! ファイル名
-        character(len=*), parameter :: train_file = 'mnist_train.csv'
-        character(len=*), parameter :: test_file = 'mnist_test.csv'
+        !character(len=*), parameter :: train_file = 'mnist_train.csv'
+        !character(len=*), parameter :: test_file = 'mnist_test.csv'
+
+        character(len=*), parameter :: train_file = 'digits_train.csv'
+        character(len=*), parameter :: test_file = 'digits_test.csv'
 
         ! データのサイズを設定（MNISTデータセットの場合）
-        integer, parameter :: train_samples = 60000
-        integer, parameter :: test_samples = 10000
+        !integer, parameter :: train_samples = 60000
+        !integer, parameter :: test_samples = 10000
+
+        integer, parameter :: train_samples = 1437
+        integer, parameter :: test_samples = 360
 
         num_train = train_samples
         num_test = test_samples
