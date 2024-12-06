@@ -65,6 +65,9 @@ RUN apt-get update && \
 
 # Intel環境変数を設定
 RUN echo "source /opt/intel/oneapi/setvars.sh" >> /etc/bash.bashrc
+# スタックメモリの制限を解除(これをしないとmnistデータセットを読み込めない)
+RUN echo "ulimit -s unlimited" >> /etc/bash.bashrc
+
 
 ```
 ```makefile
