@@ -10,9 +10,8 @@ program genetic_algorithm_main
     implicit none
 
     ! 変数の宣言
-    integer, allocatable :: X_train(:,:), X_test(:,:)
-    integer, allocatable :: y_train(:), y_test(:)
-    integer :: num_train, num_test
+    integer :: X_train(NUM_FEATURES, NUM_TRAIN), X_test(NUM_FEATURES, NUM_TEST)
+    integer :: y_train(NUM_TRAIN), y_test(NUM_TRAIN)
     type(TreeNodePointer), allocatable :: population(:), offspring(:), temp_population(:)
     real, allocatable :: fitness(:)
     integer :: i, generation
@@ -36,7 +35,7 @@ program genetic_algorithm_main
     call random_seed(put=seed)
 
     ! データの読み込み
-    call load_and_prepare_mnist(X_train, y_train, num_train, X_test, y_test, num_test)
+    call load_and_prepare_mnist(X_train, y_train, X_test, y_test)
 
     ! 初期集団の生成
     allocate(population(POPULATION_SIZE))
@@ -68,8 +67,9 @@ program genetic_algorithm_main
         end if
         best_fitness = maxval(fitness)
         mean_fitness = SUM(fitness) / SIZE(fitness)
-        print '(I10, F10.2, F10.2)', generation, best_fitness*100, mean_fitness*100
 
+        print '(I10, F10.2, F10.2)', generation, best_fitness*100, mean_fitness*100
+        call output_generation_data(generation, best_fitness*100, mean_fitness*100)
         ! オフスプリングの生成前に古いツリーを解放
         do i = 1, POPULATION_SIZE
             call deallocate_tree(offspring(i)%ptr)
@@ -105,6 +105,10 @@ program genetic_algorithm_main
     test_accuracy = evaluate_individual(best_individual%ptr, X_test, y_test, num_test)
     print *, "Test Accuracy of Best Individual: ", test_accuracy
 
+    open(unit=10, file="generation_data.txt", status="unknown", action="write", position="append")
+    write(10, *) "test accuracy", test_accuracy*100
+    close(10)
+
     ! メモリの解放
     do i = 1, POPULATION_SIZE
         call deallocate_tree(population(i)%ptr)
@@ -114,10 +118,6 @@ program genetic_algorithm_main
     deallocate(population)
     deallocate(offspring)
     deallocate(fitness)
-    deallocate(X_train)
-    deallocate(y_train)
-    deallocate(X_test)
-    deallocate(y_test)
     deallocate(seed)
 
     call system_clock(time_end_c)
@@ -126,6 +126,13 @@ program genetic_algorithm_main
     print *,real(time_end_c - time_begin_c)/CountPerSec,"sec"
 
 contains
+    subroutine output_generation_data(generation, max_fitness, mean_fitness)
+        integer, intent(in) :: generation
+        real, intent(in) :: max_fitness, mean_fitness
+        open(unit=10, file="generation_data.txt", status="unknown", action="write", position="append")
+        write(10, *) generation, max_fitness, mean_fitness
+        close(10)
+    end subroutine output_generation_data
 
     subroutine roulette_wheel_selection(fitness, selected_indices)
         use parameters

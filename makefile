@@ -4,13 +4,16 @@
 FC = gfortran
 
 # Compiler flags
-FFLAGS = -Wall -Wextra -fimplicit-none -fopenmp
-#FFLAGS = -Wall -Wextra -fimplicit-none
+FFLAGS = -Wall -Wextra -fimplicit-none -fopenmp -J$(MODDIR)
+
+# Directories
+MODDIR = mod
+OBJDIR = obj
 
 # Module and object files
-MODULES = parameters.mod data_handling.mod tree_structure.mod tree_generation.mod leaf_label_update.mod prediction.mod evaluation.mod genetic_operators.mod
+MODULES = $(MODDIR)/parameters.mod $(MODDIR)/data_handling.mod $(MODDIR)/tree_structure.mod $(MODDIR)/tree_generation.mod $(MODDIR)/leaf_label_update.mod $(MODDIR)/prediction.mod $(MODDIR)/evaluation.mod $(MODDIR)/genetic_operators.mod
 
-OBJS = parameters.o data_handling.o tree_structure.o tree_generation.o leaf_label_update.o prediction.o evaluation.o genetic_operators.o genetic_algorithm_main.o
+OBJS = $(OBJDIR)/parameters.o $(OBJDIR)/data_handling.o $(OBJDIR)/tree_structure.o $(OBJDIR)/tree_generation.o $(OBJDIR)/leaf_label_update.o $(OBJDIR)/prediction.o $(OBJDIR)/evaluation.o $(OBJDIR)/genetic_operators.o $(OBJDIR)/genetic_algorithm_main.o
 
 # Executable name
 EXEC = genetic_algorithm
@@ -18,41 +21,45 @@ EXEC = genetic_algorithm
 # Default target
 all: $(EXEC)
 
+# Ensure directories exist
+$(MODDIR) $(OBJDIR):
+	mkdir -p $@
+
 # Link the executable
 $(EXEC): $(OBJS)
 	$(FC) $(FFLAGS) -o $(EXEC) $(OBJS)
 
 # Compile modules and source files
-parameters.o: parameters.f90
-	$(FC) $(FFLAGS) -c parameters.f90
+$(OBJDIR)/parameters.o: parameters.f90 | $(MODDIR) $(OBJDIR)
+	$(FC) $(FFLAGS) -c parameters.f90 -o $@
 
-data_handling.o: data_handling.f90 parameters.mod
-	$(FC) $(FFLAGS) -c data_handling.f90
+$(OBJDIR)/data_handling.o: data_handling.f90 $(MODDIR)/parameters.mod | $(MODDIR) $(OBJDIR)
+	$(FC) $(FFLAGS) -c data_handling.f90 -o $@
 
-tree_structure.o: tree_structure.f90 parameters.mod
-	$(FC) $(FFLAGS) -c tree_structure.f90
+$(OBJDIR)/tree_structure.o: tree_structure.f90 $(MODDIR)/parameters.mod | $(MODDIR) $(OBJDIR)
+	$(FC) $(FFLAGS) -c tree_structure.f90 -o $@
 
-tree_generation.o: tree_generation.f90 tree_structure.mod parameters.mod
-	$(FC) $(FFLAGS) -c tree_generation.f90
+$(OBJDIR)/tree_generation.o: tree_generation.f90 $(MODDIR)/tree_structure.mod $(MODDIR)/parameters.mod | $(MODDIR) $(OBJDIR)
+	$(FC) $(FFLAGS) -c tree_generation.f90 -o $@
 
-leaf_label_update.o: leaf_label_update.f90 tree_structure.mod parameters.mod
-	$(FC) $(FFLAGS) -c leaf_label_update.f90
+$(OBJDIR)/leaf_label_update.o: leaf_label_update.f90 $(MODDIR)/tree_structure.mod $(MODDIR)/parameters.mod | $(MODDIR) $(OBJDIR)
+	$(FC) $(FFLAGS) -c leaf_label_update.f90 -o $@
 
-prediction.o: prediction.f90 tree_structure.mod parameters.mod
-	$(FC) $(FFLAGS) -c prediction.f90
+$(OBJDIR)/prediction.o: prediction.f90 $(MODDIR)/tree_structure.mod $(MODDIR)/parameters.mod | $(MODDIR) $(OBJDIR)
+	$(FC) $(FFLAGS) -c prediction.f90 -o $@
 
-evaluation.o: evaluation.f90 prediction.mod tree_structure.mod parameters.mod
-	$(FC) $(FFLAGS) -c evaluation.f90
+$(OBJDIR)/evaluation.o: evaluation.f90 $(MODDIR)/prediction.mod $(MODDIR)/tree_structure.mod $(MODDIR)/parameters.mod | $(MODDIR) $(OBJDIR)
+	$(FC) $(FFLAGS) -c evaluation.f90 -o $@
 
-genetic_operators.o: genetic_operators.f90 tree_structure.mod parameters.mod tree_generation.mod leaf_label_update.mod
-	$(FC) $(FFLAGS) -c genetic_operators.f90
+$(OBJDIR)/genetic_operators.o: genetic_operators.f90 $(MODDIR)/tree_structure.mod $(MODDIR)/parameters.mod $(MODDIR)/tree_generation.mod $(MODDIR)/leaf_label_update.mod | $(MODDIR) $(OBJDIR)
+	$(FC) $(FFLAGS) -c genetic_operators.f90 -o $@
 
-genetic_algorithm_main.o: genetic_algorithm_main.f90 genetic_operators.mod tree_structure.mod parameters.mod evaluation.mod
-	$(FC) $(FFLAGS) -c genetic_algorithm_main.f90
+$(OBJDIR)/genetic_algorithm_main.o: genetic_algorithm_main.f90 $(MODDIR)/genetic_operators.mod $(MODDIR)/tree_structure.mod $(MODDIR)/parameters.mod $(MODDIR)/evaluation.mod | $(MODDIR) $(OBJDIR)
+	$(FC) $(FFLAGS) -c genetic_algorithm_main.f90 -o $@
 
 # Clean up
 clean:
-	rm -f $(OBJS) $(MODULES) $(EXEC)
+	rm -rf $(OBJDIR) $(MODDIR) $(EXEC)
 
 # Phony targets
 .PHONY: all clean
