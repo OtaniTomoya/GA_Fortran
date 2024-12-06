@@ -3,39 +3,22 @@ module data_handling
     implicit none
 contains
 
-    subroutine load_and_prepare_mnist(X_train, y_train, num_train, X_test, y_test, num_test)
+    subroutine load_and_prepare_mnist(X_train, y_train, X_test, y_test)
         implicit none
-        integer, allocatable, intent(out) :: X_train(:,:), X_test(:,:)
-        integer, allocatable, intent(out) :: y_train(:), y_test(:)
-        integer, intent(out) :: num_train, num_test
+        integer, intent(out) :: X_train(NUM_FEATURES, NUM_TRAIN), X_test(NUM_FEATURES, NUM_TEST)
+        integer, intent(out) :: y_train(NUM_TRAIN), y_test(NUM_TRAIN)
 
         ! ファイル名
         !character(len=*), parameter :: train_file = 'mnist_train.csv'
         !character(len=*), parameter :: test_file = 'mnist_test.csv'
-
         character(len=*), parameter :: train_file = 'digits_train.csv'
         character(len=*), parameter :: test_file = 'digits_test.csv'
 
-        ! データのサイズを設定（MNISTデータセットの場合）
-        !integer, parameter :: train_samples = 60000
-        !integer, parameter :: test_samples = 10000
-
-        integer, parameter :: train_samples = 1437
-        integer, parameter :: test_samples = 360
-
-        num_train = train_samples
-        num_test = test_samples
-
-        allocate(X_train(NUM_FEATURES, num_train))
-        allocate(y_train(num_train))
-        allocate(X_test(NUM_FEATURES, num_test))
-        allocate(y_test(num_test))
-
         ! トレーニングデータの読み込み
-        call read_mnist_data(train_file, X_train, y_train, num_train)
+        call read_mnist_data(train_file, X_train, y_train, NUM_TRAIN)
 
         ! テストデータの読み込み
-        call read_mnist_data(test_file, X_test, y_test, num_test)
+        call read_mnist_data(test_file, X_test, y_test, NUM_TEST)
 
     end subroutine load_and_prepare_mnist
 
