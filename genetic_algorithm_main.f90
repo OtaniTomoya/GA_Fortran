@@ -130,7 +130,7 @@ program genetic_algorithm_main
 
     ! テストデータでの評価
     do i = 1, POPULATION_SIZE
-        fitness(i) = pre(population(i)%ptr, X_train, y_train, num_train)
+        fitness(i) = pre(population(i)%ptr, X_test, y_test, num_test)
     end do
     print *, "Test Accuracy of Best Individual: ", maxval(fitness)*100
     print *, "Test Accuracy of Mean Individual: ", SUM(fitness) / SIZE(fitness) * 100

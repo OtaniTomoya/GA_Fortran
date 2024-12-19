@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.read_csv('/Users/tomoya/Code/GA_Fortran/log/generation_data-20241219193319.csv')
+df = pd.read_csv('/Users/tomoya/Code/GA_Fortran/log/generation_data-20241219193515.csv')
 df.columns = df.columns.str.strip()
 
 # `test accuracy` の値を取得
@@ -28,13 +28,13 @@ plt.title('GAによる決定木の最適化過程', fontsize=16)
 plt.xlabel('世代', fontsize=14)
 plt.ylabel('適応度', fontsize=14)
 
-plt.xticks(range(0, int(df['Generation'].max()) + 1, 100))
+plt.xticks(range(0, int(df['Generation'].max()) + 1, int(int(df['Generation'].max())/10)))
 
 if test_accuracy is not None:
     plt.text(
         x=int(df['Generation'].max()) // 2,  
         y=(df['Max Fitness'].max())//2,
-        s=f"test accuracy: {test_accuracy:.4f}", 
+        s=f"test accuracy: {test_accuracy:.1f}%", 
         fontsize=14,
         color='black',
         fontweight='bold',
