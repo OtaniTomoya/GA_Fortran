@@ -14,6 +14,8 @@ module parameters
 !    integer, parameter :: SEED_VALUE = 215013
 !    integer, parameter :: NUM_TRAIN = 60000
 !    integer, parameter :: NUM_TEST = 10000
+!    character(len=*), parameter :: train_file = 'mnist_train.csv'
+!    character(len=*), parameter :: test_file = 'mnist_test.csv'
 
     ! digits
     integer, parameter :: POPULATION_SIZE = 10001 ! 集団サイズ
@@ -29,5 +31,7 @@ module parameters
     integer, parameter :: SEED_VALUE = 215013
     integer, parameter :: NUM_TRAIN = 1437  ! データのサイズ
     integer, parameter :: NUM_TEST = 360
+    character(len=*), parameter :: train_file = 'digits_train.csv'
+    character(len=*), parameter :: test_file = 'digits_test.csv'
 end module parameters
 

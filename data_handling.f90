@@ -8,12 +8,6 @@ contains
         integer, intent(out) :: X_train(NUM_FEATURES, NUM_TRAIN), X_test(NUM_FEATURES, NUM_TEST)
         integer, intent(out) :: y_train(NUM_TRAIN), y_test(NUM_TRAIN)
 
-        ! ファイル名
-        !character(len=*), parameter :: train_file = 'mnist_train.csv'
-        !character(len=*), parameter :: test_file = 'mnist_test.csv'
-        character(len=*), parameter :: train_file = 'digits_train.csv'
-        character(len=*), parameter :: test_file = 'digits_test.csv'
-
         ! トレーニングデータの読み込み
         call read_mnist_data(train_file, X_train, y_train, NUM_TRAIN)
 
