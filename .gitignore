@@ -6,3 +6,6 @@
 /makefile
 /.devcontainer/*
 .DS_Store
+/log/*
+/mod/*
+/obj/*

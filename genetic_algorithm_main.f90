@@ -26,6 +26,17 @@ program genetic_algorithm_main
 
     integer :: time_begin_c,time_end_c, CountPerSec, CountMax
 
+    character (Len=8) :: date 
+    character (Len=10) :: time
+    character (Len=50) :: filename
+
+    call system_clock(time_begin_c, CountPerSec, CountMax)
+    call get_date_time(date, time)
+    ! Log
+    write(filename, '(A,"-",A," cs")') "log/generation_data", trim(date)//trim(time)
+    open(unit=10, file=trim(filename), status="unknown", action="write", position="append")
+    write(10, '(A)') "Generation, Max Fitness, Mean Fitness"
+
     call system_clock(time_begin_c, CountPerSec, CountMax)
 
     ! 乱数の初期化
@@ -105,8 +116,7 @@ program genetic_algorithm_main
     test_accuracy = evaluate_individual(best_individual%ptr, X_test, y_test, num_test)
     print *, "Test Accuracy of Best Individual: ", test_accuracy
 
-    open(unit=10, file="generation_data.txt", status="unknown", action="write", position="append")
-    write(10, *) "test accuracy", test_accuracy*100
+    write(10, '(A, F0.4)') "test accuracy", test_accuracy*100
     close(10)
 
     ! メモリの解放
@@ -127,12 +137,21 @@ program genetic_algorithm_main
 
 contains
     subroutine output_generation_data(generation, max_fitness, mean_fitness)
-        integer, intent(in) :: generation
+        integer, intent(in) :: generation 
         real, intent(in) :: max_fitness, mean_fitness
-        open(unit=10, file="generation_data.txt", status="unknown", action="write", position="append")
-        write(10, *) generation, max_fitness, mean_fitness
-        close(10)
+
+        ! ファイルにデータを書き込む（カンマ区切り）
+        write(10, '(I0,",",F0.4,",",F0.4)') generation, max_fitness, mean_fitness
     end subroutine output_generation_data
+
+    subroutine get_date_time(date, time)
+        character (len=8), intent(out) :: date
+        character (Len=10), intent(out) :: time
+        integer :: values(8)
+        call date_and_time (values=values)
+        write(date, '(I4.4,I2.2,I2.2)') values(1), values(2), values (3)
+        write(time, ' (I2.2,I2.2, I2.2)') values(5), values(6), values(7)
+    end subroutine get_date_time
 
     subroutine roulette_wheel_selection(fitness, selected_indices)
         use parameters
