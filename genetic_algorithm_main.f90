@@ -21,8 +21,8 @@ program genetic_algorithm_main
     integer :: depth
     integer :: seed_size
     integer, allocatable :: seed(:)
-    integer :: best_index
-
+    integer :: best_index, cnt_change
+    logical, allocatable :: changed(:)
     integer :: time_begin_c,time_end_c, CountPerSec, CountMax
 
     character (Len=8) :: date 
@@ -50,19 +50,23 @@ program genetic_algorithm_main
     ! 初期集団の生成
     allocate(population(POPULATION_SIZE))
     allocate(fitness(POPULATION_SIZE))
+    allocate(changed(POPULATION_SIZE))
+
     !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i, r, depth)
         do i = 1, POPULATION_SIZE
             call random_number(r)
             depth = int(MIN_DEPTH + (MAX_DEPTH - MIN_DEPTH) * r)
             call create_random_tree(depth, 0, population(i)%ptr)
+            changed(i) = .true.
         end do
     !$OMP END PARALLEL DO
 
     ! オフスプリングの配列を最初に割り当て
     allocate(offspring(POPULATION_SIZE))
-    print '(A)', "Generation     max       mean"
+    print '(A)', "Generation     Ind     max       mean"
     ! 世代ループ
     do generation = 1, GENERATIONS
+        cnt_change = count(changed)
         ! オフスプリングの生成前に古いツリーを解放
         do i = 1, POPULATION_SIZE
             call deallocate_tree(offspring(i)%ptr)
@@ -71,18 +75,25 @@ program genetic_algorithm_main
         ! 適応度の計算
         !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i)
             do i = 1, POPULATION_SIZE
-                fitness(i) = evaluate_individual(population(i)%ptr, X_train, y_train, num_train)
+                if (changed(i)) then
+                    fitness(i) = evaluate_individual(population(i)%ptr, X_train, y_train, num_train)
+                    changed(i) = .false.
+                end if
             end do
         !$OMP END PARALLEL DO
-
-        ! エリート保存
-        best_index = maxloc(fitness, dim=1)
-        call copy_tree(population(best_index)%ptr, offspring(1)%ptr)
 
         best_fitness = maxval(fitness)
         mean_fitness = SUM(fitness) / SIZE(fitness)
 
-        print '(I10, F10.2, F10.2)', generation, best_fitness*100, mean_fitness*100
+        ! エリート保存
+        best_index = maxloc(fitness, dim=1)
+        call copy_tree(population(best_index)%ptr, offspring(1)%ptr)
+        changed(1) = .true.
+
+        best_fitness = maxval(fitness)
+        mean_fitness = SUM(fitness) / SIZE(fitness)
+
+        print '(I10, I10, F10.2, F10.2)', generation, cnt_change, best_fitness*100, mean_fitness*100
         call output_generation_data(generation, best_fitness*100, mean_fitness*100)
 
         ! 選択と交叉
@@ -94,6 +105,8 @@ program genetic_algorithm_main
 
             call random_number(r)
             if (r < CROSSOVER_RATE) then
+                changed(i) = .true.
+                changed(i+1) = .true.
                 call subtree_crossover(offspring(i)%ptr, offspring(i + 1)%ptr)
             end if
         end do
@@ -101,7 +114,11 @@ program genetic_algorithm_main
         ! 突然変異
         !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i)
             do i = 2, POPULATION_SIZE
-                call mutate(offspring(i)%ptr)
+                call random_number(r)
+                if (r < MUTATION_RATE) then
+                    changed(i) = .true.
+                    call mutate(offspring(i)%ptr)
+                end if
             end do
         !$OMP END PARALLEL DO
 
@@ -123,6 +140,7 @@ program genetic_algorithm_main
         call deallocate_tree(population(i)%ptr)
         call deallocate_tree(offspring(i)%ptr)
     end do
+
     deallocate(population)
     deallocate(offspring)
     deallocate(fitness)
