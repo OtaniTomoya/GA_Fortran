@@ -15,7 +15,7 @@ program genetic_algorithm_main
     type(TreeNodePointer), allocatable :: population(:), offspring(:), temp_population(:)
     real, allocatable :: fitness(:)
     integer :: i, generation
-    real :: best_fitness, test_accuracy, mean_fitness
+    real :: best_fitness, mean_fitness
     integer :: parent_indices(2)
     real :: r
     integer :: depth
@@ -129,10 +129,14 @@ program genetic_algorithm_main
     end do
 
     ! テストデータでの評価
-    test_accuracy = evaluate_individual(offspring(1)%ptr, X_test, y_test, num_test)
-    print *, "Test Accuracy of Best Individual: ", test_accuracy
+    do i = 1, POPULATION_SIZE
+        fitness(i) = pre(population(i)%ptr, X_train, y_train, num_train)
+    end do
+    print *, "Test Accuracy of Best Individual: ", maxval(fitness)*100
+    print *, "Test Accuracy of Mean Individual: ", SUM(fitness) / SIZE(fitness) * 100
+    print *, "Test Accuracy of Worst Individual: ", minval(fitness)*100
 
-    write(10, '(A, F0.4)') "test accuracy", test_accuracy*100
+    write(10, '(A, F0.4)') "test accuracy", maxval(fitness)*100
     close(10)
 
     ! メモリの解放
