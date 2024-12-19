@@ -24,9 +24,9 @@ plt.plot(df['Generation'], df['Max Fitness'], label='Max Fitness', linewidth=2)
 plt.plot(df['Generation'], df['Mean Fitness'], label='Mean Fitness', linewidth=2, linestyle='--')
 
 # タイトルとラベルの設定
-plt.title('Fitness Progress over Generations', fontsize=16)
-plt.xlabel('Generation', fontsize=14)
-plt.ylabel('Fitness', fontsize=14)
+plt.title('GAによる決定木の最適化過程', fontsize=16)
+plt.xlabel('世代', fontsize=14)
+plt.ylabel('適応度', fontsize=14)
 
 plt.xticks(range(0, int(df['Generation'].max()) + 1, 100))
 
