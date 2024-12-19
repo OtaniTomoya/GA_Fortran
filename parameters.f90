@@ -16,7 +16,7 @@ module parameters
 !    integer, parameter :: NUM_TEST = 10000
 
     ! digits
-    integer, parameter :: POPULATION_SIZE = 100 ! 集団サイズ
+    integer, parameter :: POPULATION_SIZE = 101 ! 集団サイズ
     integer, parameter :: GENERATIONS = 100   ! 世代数
     integer, parameter :: MIN_DEPTH = 4        ! ツリーの最小深さ
     integer, parameter :: MAX_DEPTH = 14        ! ツリーの最大深さ

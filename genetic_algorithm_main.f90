@@ -16,7 +16,6 @@ program genetic_algorithm_main
     real, allocatable :: fitness(:)
     integer :: i, generation
     real :: best_fitness, test_accuracy, mean_fitness
-    type(TreeNodePointer) :: best_individual
     integer :: parent_indices(2)
     real :: r
     integer :: depth
@@ -64,6 +63,10 @@ program genetic_algorithm_main
     print '(A)', "Generation     max       mean"
     ! 世代ループ
     do generation = 1, GENERATIONS
+        ! オフスプリングの生成前に古いツリーを解放
+        do i = 1, POPULATION_SIZE
+            call deallocate_tree(offspring(i)%ptr)
+        end do
 
         ! 適応度の計算
         !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i)
@@ -71,23 +74,19 @@ program genetic_algorithm_main
                 fitness(i) = evaluate_individual(population(i)%ptr, X_train, y_train, num_train)
             end do
         !$OMP END PARALLEL DO
-        ! 最良個体の選択
-        if (generation == GENERATIONS) then
-            best_index = maxloc(fitness, dim=1)
-            call copy_tree(population(best_index)%ptr, best_individual%ptr)
-        end if
+
+        ! エリート保存
+        best_index = maxloc(fitness, dim=1)
+        call copy_tree(population(best_index)%ptr, offspring(1)%ptr)
+
         best_fitness = maxval(fitness)
         mean_fitness = SUM(fitness) / SIZE(fitness)
 
         print '(I10, F10.2, F10.2)', generation, best_fitness*100, mean_fitness*100
         call output_generation_data(generation, best_fitness*100, mean_fitness*100)
-        ! オフスプリングの生成前に古いツリーを解放
-        do i = 1, POPULATION_SIZE
-            call deallocate_tree(offspring(i)%ptr)
-        end do
 
         ! 選択と交叉
-        do i = 1, POPULATION_SIZE, 2
+        do i = 2, POPULATION_SIZE, 2
             call roulette_wheel_selection(fitness, parent_indices)
 
             call copy_tree(population(parent_indices(1))%ptr, offspring(i)%ptr)
@@ -101,7 +100,7 @@ program genetic_algorithm_main
 
         ! 突然変異
         !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i)
-            do i = 1, POPULATION_SIZE
+            do i = 2, POPULATION_SIZE
                 call mutate(offspring(i)%ptr)
             end do
         !$OMP END PARALLEL DO
@@ -113,7 +112,7 @@ program genetic_algorithm_main
     end do
 
     ! テストデータでの評価
-    test_accuracy = evaluate_individual(best_individual%ptr, X_test, y_test, num_test)
+    test_accuracy = evaluate_individual(offspring(1)%ptr, X_test, y_test, num_test)
     print *, "Test Accuracy of Best Individual: ", test_accuracy
 
     write(10, '(A, F0.4)') "test accuracy", test_accuracy*100
@@ -124,7 +123,6 @@ program genetic_algorithm_main
         call deallocate_tree(population(i)%ptr)
         call deallocate_tree(offspring(i)%ptr)
     end do
-    call deallocate_tree(best_individual%ptr)
     deallocate(population)
     deallocate(offspring)
     deallocate(fitness)
