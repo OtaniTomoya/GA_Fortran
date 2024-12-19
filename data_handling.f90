@@ -5,8 +5,8 @@ contains
 
     subroutine load_and_prepare_mnist(X_train, y_train, X_test, y_test)
         implicit none
-        integer, intent(out) :: X_train(NUM_FEATURES, NUM_TRAIN), X_test(NUM_FEATURES, NUM_TEST)
-        integer, intent(out) :: y_train(NUM_TRAIN), y_test(NUM_TRAIN)
+        real, intent(out) :: X_train(NUM_FEATURES, NUM_TRAIN), X_test(NUM_FEATURES, NUM_TEST)
+        real, intent(out) :: y_train(NUM_TRAIN), y_test(NUM_TRAIN)
 
         ! トレーニングデータの読み込み
         call read_mnist_data(train_file, X_train, y_train, NUM_TRAIN)
@@ -20,8 +20,8 @@ contains
         use parameters
         implicit none
         character(len=*), intent(in) :: filename
-        integer, intent(out) :: X(NUM_FEATURES, num_samples)
-        integer, intent(out) :: y(num_samples)
+        real, intent(out) :: X(NUM_FEATURES, num_samples)
+        real, intent(out) :: y(num_samples)
         integer, intent(in) :: num_samples
         integer :: i, j, ios
         integer :: unit

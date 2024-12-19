@@ -10,8 +10,8 @@ program genetic_algorithm_main
     implicit none
 
     ! 変数の宣言
-    integer :: X_train(NUM_FEATURES, NUM_TRAIN), X_test(NUM_FEATURES, NUM_TEST)
-    integer :: y_train(NUM_TRAIN), y_test(NUM_TRAIN)
+    real :: X_train(NUM_FEATURES, NUM_TRAIN), X_test(NUM_FEATURES, NUM_TEST)
+    real :: y_train(NUM_TRAIN), y_test(NUM_TRAIN)
     type(TreeNodePointer), allocatable :: population(:), offspring(:), temp_population(:)
     real, allocatable :: fitness(:)
     integer :: i, generation
@@ -28,6 +28,8 @@ program genetic_algorithm_main
     character (Len=8) :: date 
     character (Len=10) :: time
     character (Len=50) :: filename
+
+    print *, "Start Genetic Programming"
 
     call system_clock(time_begin_c, CountPerSec, CountMax)
     call get_date_time(date, time)

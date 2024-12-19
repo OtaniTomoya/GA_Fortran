@@ -4,7 +4,7 @@ module prediction
 contains
     integer function predict(node, sample) result(res)
         type(TreeNode), pointer :: node
-        integer, intent(in) :: sample(:)
+        real, intent(in) :: sample(:)
         type(TreeNode), pointer :: current_node
         current_node => node
 

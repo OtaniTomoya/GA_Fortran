@@ -7,8 +7,8 @@ module evaluation
 contains
     real function evaluate_individual(node, X, y, num_samples)
         type(TreeNode), pointer :: node
-        integer, intent(in) :: X(NUM_FEATURES, num_samples)
-        integer, intent(in) :: y(num_samples)
+        real, intent(in) :: X(NUM_FEATURES, num_samples)
+        real, intent(in) :: y(num_samples)
         integer, intent(in) :: num_samples
         integer :: correct, i
         integer :: pred
@@ -20,7 +20,7 @@ contains
         correct = 0
         do i = 1, num_samples
             pred = predict(node, X(:, i))
-            if (pred == y(i)) correct = correct + 1
+            if (pred == int(y(i))) correct = correct + 1
         end do
 
         ! 精度の計算
@@ -29,8 +29,8 @@ contains
 
     real function pre(node, X, y, num_samples)
         type(TreeNode), pointer :: node
-        integer, intent(in) :: X(NUM_FEATURES, num_samples)
-        integer, intent(in) :: y(num_samples)
+        real, intent(in) :: X(NUM_FEATURES, num_samples)
+        real, intent(in) :: y(num_samples)
         integer, intent(in) :: num_samples
         integer :: correct, i
         integer :: pred
@@ -39,7 +39,7 @@ contains
         correct = 0
         do i = 1, num_samples
             pred = predict(node, X(:, i))
-            if (pred == y(i)) correct = correct + 1
+            if (pred == int(y(i))) correct = correct + 1
         end do
 
         ! 精度の計算
