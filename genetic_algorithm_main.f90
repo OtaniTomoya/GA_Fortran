@@ -32,7 +32,7 @@ program genetic_algorithm_main
     call system_clock(time_begin_c, CountPerSec, CountMax)
     call get_date_time(date, time)
     ! Log
-    write(filename, '(A,"-",A," cs")') "log/generation_data", trim(date)//trim(time)
+    write(filename, '(A,"-",A," .csv")') "log/generation_data", trim(date)//trim(time)
     open(unit=10, file=trim(filename), status="unknown", action="write", position="append")
     write(10, '(A)') "Generation, Max Fitness, Mean Fitness"
 
