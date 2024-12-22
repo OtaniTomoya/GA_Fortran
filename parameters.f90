@@ -18,12 +18,12 @@ module parameters
 !    character(len=*), parameter :: test_file = 'mnist_test.csv'
 
     ! digits
-    integer, parameter :: POPULATION_SIZE = 101 ! 集団サイズ
-    integer, parameter :: GENERATIONS = 100   ! 世代数
-    integer, parameter :: MIN_DEPTH = 4        ! ツリーの最小深さ
+    integer, parameter :: POPULATION_SIZE = 10001 ! 集団サイズ
+    integer, parameter :: GENERATIONS = 100000   ! 世代数
+    integer, parameter :: MIN_DEPTH = 1        ! ツリーの最小深さ
     integer, parameter :: MAX_DEPTH = 14        ! ツリーの最大深さ
     integer, parameter :: TOURNAMENT_SIZE = 0   ! トーナメント選択のサイズ
-    real, parameter    :: MUTATION_RATE = 0.01  ! 突然変異率
+    real, parameter    :: MUTATION_RATE = 0.02  ! 突然変異率
     real, parameter    :: CROSSOVER_RATE = 0.5  ! 交叉率
     integer, parameter :: NUM_FEATURES = 64    ! 特徴量の数
     integer, parameter :: NUM_THRESHOLD = 15    ! 閾値
