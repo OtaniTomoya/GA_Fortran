@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.read_csv('/Users/tomoya/Code/GA_Fortran/log/generation_data-20241219193515.csv')
+df = pd.read_csv('/Users/tomoya/Code/GA_Fortran/log/generation_data-20241220225638 .csv')
 df.columns = df.columns.str.strip()
 
 # `test accuracy` の値を取得
