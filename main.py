@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import requests
 import pandas as pd
 import glob
+import time
 
 def build_fortran():
     subprocess.run(["make"], check=True)
@@ -102,10 +103,11 @@ def read_parameters(filepath):
 
 def main():
     webhook_url = "https://discord.com/api/webhooks/1319605518360383581/RWHm4qiVJC_6TuyS21j6JF2a5sKat-SOyctXf3bvMXuy2cqO8DQpKwW7W1sdPLGNMohX"
-
+    start = time.time() 
     build_fortran()
     run_fortran()
     df, best_test_acc = read_generation_data()
+    end = time.time() 
 
     if df is not None:
         plot_fitness(df, best_test_acc)
@@ -115,7 +117,7 @@ def main():
         param_text = "\n".join(param_lines)  # リストを改行で結合して文字列にする
 
         if best_test_acc is not None:
-            text_for_discord = f"Best test accuracy: {best_test_acc}\n\n"
+            text_for_discord = f"Best test accuracy: {best_test_acc}%\n実行時間: {str(end - start)}s"
         else:
             text_for_discord = ""
 

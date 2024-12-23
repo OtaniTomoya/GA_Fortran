@@ -17,7 +17,7 @@ program genetic_algorithm_main
     integer :: i, generation
     real :: best_fitness, mean_fitness
     integer :: parent_indices(2)
-    real :: r
+    real :: r, timer
     integer :: depth
     integer :: seed_size
     integer, allocatable :: seed(:)
@@ -28,15 +28,12 @@ program genetic_algorithm_main
     character (Len=8) :: date 
     character (Len=10) :: time
     character (Len=50) :: filename
-
-    call system_clock(time_begin_c, CountPerSec, CountMax)
+    
     call get_date_time(date, time)
     ! Log
     write(filename, '(A,"-",A," .csv")') "log/generation_data", trim(date)//trim(time)
     open(unit=10, file=trim(filename), status="unknown", action="write", position="append")
     write(10, '(A)') "Generation, Max Fitness, Mean Fitness"
-
-    call system_clock(time_begin_c, CountPerSec, CountMax)
 
     ! 乱数の初期化
     call random_seed(size=seed_size)
@@ -63,9 +60,10 @@ program genetic_algorithm_main
 
     ! オフスプリングの配列を最初に割り当て
     allocate(offspring(POPULATION_SIZE))
-    print '(A)', "Generation     Ind     max       mean"
+    print '(A)', "Generation     Ind       max       mean       time"
     ! 世代ループ
     do generation = 1, GENERATIONS
+        call system_clock(time_begin_c, CountPerSec, CountMax)
         cnt_change = count(changed)
         ! オフスプリングの生成前に古いツリーを解放
         do i = 1, POPULATION_SIZE
@@ -93,7 +91,6 @@ program genetic_algorithm_main
         best_fitness = maxval(fitness)
         mean_fitness = SUM(fitness) / SIZE(fitness)
 
-        print '(I10, I10, F10.2, F10.2)', generation, cnt_change, best_fitness*100, mean_fitness*100
         call output_generation_data(generation, best_fitness*100, mean_fitness*100)
 
         ! 選択と交叉
@@ -126,6 +123,11 @@ program genetic_algorithm_main
         call move_alloc(population, temp_population)
         call move_alloc(offspring, population)
         call move_alloc(temp_population, offspring)
+
+        call system_clock(time_end_c)
+        timer = real(time_end_c - time_begin_c)/CountPerSec
+        print '(I10, I10, F10.2, F10.2, F10.2, F10.2)', generation, cnt_change, best_fitness*100, mean_fitness*100, timer, (GENERATIONS-generation)*timer*0.000277778
+
     end do
 
     ! テストデータでの評価
@@ -149,11 +151,6 @@ program genetic_algorithm_main
     deallocate(offspring)
     deallocate(fitness)
     deallocate(seed)
-
-    call system_clock(time_end_c)
-
-    print *,time_begin_c,time_end_c, CountPerSec,CountMax
-    print *,real(time_end_c - time_begin_c)/CountPerSec,"sec"
 
 contains
     subroutine output_generation_data(generation, max_fitness, mean_fitness)
