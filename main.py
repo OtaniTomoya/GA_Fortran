@@ -1,5 +1,6 @@
 import subprocess
 import matplotlib.pyplot as plt
+import japanize_matplotlib
 import requests
 import pandas as pd
 import glob
@@ -74,7 +75,7 @@ def send_image_to_discord(webhook_url, image_path, message=None):
 
 def read_parameters(filepath):
     """
-    parametar.f90 などから、parameter宣言のみを抽出して返す。
+    parameters.f90 などから、parameter宣言のみを抽出し、型指定を削除して返す。
     コメント行やmodule宣言など不要な行はスキップ。
     """
     extracted_lines = []
@@ -91,15 +92,14 @@ def read_parameters(filepath):
                 'implicit none' in lower_line):
                 continue
 
-            # パラメータ以外にも設定が入っているかもしれないので、
-            # "parameter ::" を含む行だけを対象とする (大文字小文字は一応無視)
-            if 'parameter ::' not in lower_line:
-                continue
-
-            # 上記条件をすべてパスしたら、この行は「パラメータ宣言行」とみなす
-            extracted_lines.append(line_strip)
+            # 型指定を削除する処理
+            line_no_type = line_strip.replace("integer, parameter ::", "").replace(
+                "real, parameter    ::", "").replace(
+                "character(len=*), parameter ::", "").strip()
+            extracted_lines.append(line_no_type)
 
     return extracted_lines
+
 
 def main():
     webhook_url = "https://discord.com/api/webhooks/1319605518360383581/RWHm4qiVJC_6TuyS21j6JF2a5sKat-SOyctXf3bvMXuy2cqO8DQpKwW7W1sdPLGNMohX"
