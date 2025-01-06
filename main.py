@@ -108,7 +108,6 @@ def main():
     run_fortran()
     df, best_test_acc = read_generation_data()
     end = time.time() 
-
     if df is not None:
         plot_fitness(df, best_test_acc)
 

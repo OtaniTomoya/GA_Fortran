@@ -8,25 +8,39 @@ contains
     subroutine subtree_crossover(ind1, ind2)
         type(TreeNode), pointer :: ind1
         type(TreeNode), pointer :: ind2
+        logical :: crossover_done
 
-        call crossover_recursive(ind1, ind2)
+        crossover_done = .false.
+        call crossover_recursive(ind1, ind2, crossover_done)
+
     end subroutine subtree_crossover
 
-    recursive subroutine crossover_recursive(node1, node2)
+    recursive subroutine crossover_recursive(node1, node2, crossover_done)
         type(TreeNode), pointer :: node1
         type(TreeNode), pointer :: node2
+        logical, intent(inout) :: crossover_done  ! 追加：crossover が完了したかどうか
+
         real :: r
 
-        if (.not. associated(node1) .or. .not. associated(node2)) return
+        if (.not. associated(node1) .or. .not. associated(node2) .or. crossover_done) then
+            return
+        end if
 
         call random_number(r)
-        if (r < CROSSOVER_RATE) then
+        if (r < 0.01) then
             call swap_subtrees(node1, node2)
+            crossover_done = .true.  ! 交叉フラグを立てる
         else
-            call crossover_recursive(node1%left, node2%left)
-            call crossover_recursive(node1%right, node2%right)
+            if (r < 0.5) then
+                call crossover_recursive(node1%left, node2%left, crossover_done)
+                call crossover_recursive(node1%right, node2%right, crossover_done)
+            else
+                call crossover_recursive(node1%right, node2%right, crossover_done)
+                call crossover_recursive(node1%left, node2%left, crossover_done)
+            end if
         end if
     end subroutine crossover_recursive
+
 
     subroutine mutate(individual)
         type(TreeNode), pointer :: individual

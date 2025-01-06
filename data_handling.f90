@@ -2,21 +2,23 @@ module data_handling
     use parameters
     implicit none
 contains
-
-    subroutine load_and_prepare_mnist(X_train, y_train, X_test, y_test)
+! データの準備
+    subroutine load_and_prepare_data(X_train, y_train, X_test, y_test)
         implicit none
-        integer, intent(out) :: X_train(NUM_FEATURES, NUM_TRAIN), X_test(NUM_FEATURES, NUM_TEST)
+        integer, intent(out) :: X_train(NUM_FEATURES, NUM_TRAIN)
+        integer, intent(out) :: X_test(NUM_FEATURES, NUM_TEST)
         integer, intent(out) :: y_train(NUM_TRAIN), y_test(NUM_TRAIN)
 
-        ! トレーニングデータの読み込み
-        call read_mnist_data(train_file, X_train, y_train, NUM_TRAIN)
+        ! 訓練データの読み込み
+        call read_data(train_file, X_train, y_train, NUM_TRAIN) 
 
         ! テストデータの読み込み
-        call read_mnist_data(test_file, X_test, y_test, NUM_TEST)
+        call read_data(test_file, X_test, y_test, NUM_TEST)
 
-    end subroutine load_and_prepare_mnist
+    end subroutine load_and_prepare_data
 
-    subroutine read_mnist_data(filename, X, y, num_samples)
+! データの読み込み
+    subroutine read_data(filename, X, y, num_samples)
         use parameters
         implicit none
         character(len=*), intent(in) :: filename
@@ -25,24 +27,24 @@ contains
         integer, intent(in) :: num_samples
         integer :: i, j, ios
         integer :: unit
-
-        ! ファイルを開く
-        open(newunit=unit, file=filename, status='old', action='read', iostat=ios)
-        if (ios /= 0) then
+        ! ファイルのオープン
+        open(newunit=unit,file=filename,status='old',action='read',iostat=ios)
+        if (ios /= 0) then  ! エラー処理
             print *, 'Error opening file: ', filename
             stop
         end if
 
-        ! カンマ区切りのデータを読み込む
-        do i = 1, num_samples
+        do i = 1, num_samples 
+            ! データの読み込み  
             read(unit, *, iostat=ios) y(i), (X(j, i), j = 1, NUM_FEATURES)
-            if (ios /= 0) then
-                print *, 'Error reading data at line ', i, ' from file: ', filename
+
+            if (ios /= 0) then  ! エラー処理
+                print *,'Error reading data at line ',i,' from file: ',filename
                 stop
             end if
         end do
 
         close(unit)
-    end subroutine read_mnist_data
+    end subroutine read_data
 
 end module data_handling

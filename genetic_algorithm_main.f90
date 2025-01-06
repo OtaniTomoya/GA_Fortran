@@ -24,7 +24,7 @@ program genetic_algorithm_main
     integer :: best_index, cnt_change
     logical, allocatable :: changed(:)
     integer :: time_begin_c,time_end_c, CountPerSec, CountMax
-
+    REAL, parameter :: epsilon = 0.001
     character (Len=8) :: date 
     character (Len=10) :: time
     character (Len=50) :: filename
@@ -42,7 +42,7 @@ program genetic_algorithm_main
     call random_seed(put=seed)
 
     ! データの読み込み
-    call load_and_prepare_mnist(X_train, y_train, X_test, y_test)
+    call load_and_prepare_data(X_train, y_train, X_test, y_test)
 
     ! 初期集団の生成
     allocate(population(POPULATION_SIZE))
@@ -127,7 +127,9 @@ program genetic_algorithm_main
         call system_clock(time_end_c)
         timer = real(time_end_c - time_begin_c)/CountPerSec
         print '(I10, I10, F10.2, F10.2, F10.2, F10.2)', generation, cnt_change, best_fitness*100, mean_fitness*100, timer, (GENERATIONS-generation)*timer*0.000277778
-
+        if (best_fitness - mean_fitness < epsilon) then
+            exit
+        end if
     end do
 
     ! テストデータでの評価
